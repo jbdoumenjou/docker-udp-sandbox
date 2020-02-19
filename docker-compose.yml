@@ -1,0 +1,30 @@
+version: '3.5'
+services:
+
+  traefik:
+    image: containous/traefik:latest
+#    image: traefik:v2.1
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.ep1.address=:9000/udp
+      - --log.level=DEBUG
+      - --api.insecure=true
+      - --providers.docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - '80:80'
+      - '8080:8080'
+      - '9000:9000/udp'
+
+  whoami:
+    image: containous/whoami
+    labels:
+      - traefik.http.routers.whoami.rule=Host(`whoami`)
+
+  whoamiudp:
+    image: containous/whoamiudp:dev
+    labels:
+      - traefik.udp.routers.myudprouter.entrypoints=ep1
+
+
